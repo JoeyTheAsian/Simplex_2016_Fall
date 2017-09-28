@@ -14,6 +14,8 @@ Date: 2017/05
 
 class Application
 {
+	int direction = 1;
+	int timer = 60 * 4;
 	matrix4 m_m4Object1[48];
 	MyMesh* m_pMesh = nullptr;
 	MyMesh* m_pMesh1 = nullptr;

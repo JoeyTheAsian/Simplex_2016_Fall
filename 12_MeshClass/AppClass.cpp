@@ -48,10 +48,35 @@ void Application::InitVariables(void)
 	m_m4Object1[24] *= glm::translate(vector3(-10.00f, 2.0f, 0.0f));
 	m_m4Object1[25] *= glm::translate(vector3(-10.00f, -2.0f, 0.0f));
 
-	int startIndex = 4;
-	for (int i = 26; i < 48; i++) {
+	m_m4Object1[26] *= glm::translate(vector3(2.00f, 2.0f, 0.0f));
+	m_m4Object1[27] *= glm::translate(vector3(2.00f, 4.0f, 0.0f));
+	m_m4Object1[28] *= glm::translate(vector3(2.00f, 6.0f, 0.0f));
+	m_m4Object1[29] *= glm::translate(vector3(2.00f, 0.0f, 0.0f));
+	m_m4Object1[30] *= glm::translate(vector3(2.00f, -4.0f, 0.0f));
 
-		startIndex++;
+	m_m4Object1[31] *= glm::translate(vector3(4.00f, 2.0f, 0.0f));
+	m_m4Object1[32] *= glm::translate(vector3(4.00f, 6.0f, 0.0f));
+	m_m4Object1[33] *= glm::translate(vector3(4.00f, 0.0f, 0.0f));
+	m_m4Object1[34] *= glm::translate(vector3(4.00f, 8.0f, 0.0f));
+	m_m4Object1[35] *= glm::translate(vector3(4.00f, 8.0f, 0.0f));
+	m_m4Object1[36] *= glm::translate(vector3(4.00f, -4.0f, 0.0f));
+
+	m_m4Object1[37] *= glm::translate(vector3(6.00f, 2.0f, 0.0f));
+	m_m4Object1[38] *= glm::translate(vector3(6.00f, 4.0f, 0.0f));
+	m_m4Object1[39] *= glm::translate(vector3(6.00f, 6.0f, 0.0f));
+	m_m4Object1[40] *= glm::translate(vector3(6.00f, 0.0f, 0.0f));
+	m_m4Object1[41] *= glm::translate(vector3(6.00f, 10.0f, 0.0f));
+	m_m4Object1[42] *= glm::translate(vector3(6.00f, -2.0f, 0.0f));
+
+	m_m4Object1[43] *= glm::translate(vector3(8.00f, 4.0f, 0.0f));
+	m_m4Object1[44] *= glm::translate(vector3(8.00f, 2.0f, 0.0f));
+
+	m_m4Object1[45] *= glm::translate(vector3(10.00f, 0.0f, 0.0f));
+	m_m4Object1[46] *= glm::translate(vector3(10.00f, 2.0f, 0.0f));
+	m_m4Object1[47] *= glm::translate(vector3(10.00f, -2.0f, 0.0f));
+
+	for (int i = 0; i < 48; i++) {
+		m_m4Object1[i] *= glm::translate(vector3(-60.0f, 0.0f, -80.0f));
 	}
 }
 void Application::Update(void)
@@ -77,8 +102,14 @@ void Application::Display(void)
 	//m_pMesh->Render(m4Projection, m4View, glm::translate(vector3(3.0f, 0.0f,0.0f)) * ToMatrix4(m_qArcBall));
 	//m_pMesh1->Render(m_pCameraMngr->GetProjectionMatrix(), m_pCameraMngr->GetViewMatrix(), glm::translate(vector3( 3.0f, 0.0f, 0.0f)));
 	for (int i = 0; i < 48; i++) {
+		m_m4Object1[i] *= glm::translate(vector3(direction * .5f, 0.0f, 0.0f));
 		m_pMesh->Render(m4Projection, m4View, m_m4Object1[i]);
 	}
+	if (timer <= 0) {
+		direction *= -1;
+		timer = 60 * 4;
+	}
+	timer--;
 
 	// draw a skybox
 	m_pMeshMngr->AddSkyboxToRenderList();
@@ -103,6 +134,10 @@ void Application::Release(void)
 		delete m_pMesh;
 		m_pMesh = nullptr;
 	}
+	if (m_m4Object1 != nullptr) {
+		delete m_m4Object1;
+	}
+
 	SafeDelete(m_pMesh1);
 	//release GUI
 	ShutdownGUI();
