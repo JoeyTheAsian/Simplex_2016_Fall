@@ -56,19 +56,33 @@ void Application::Display(void)
 
 	//calculate the current position
 	vector3 v3CurrentPos;
-	
-
-
 
 
 	//your code goes here
 	v3CurrentPos = vector3(0.0f, 0.0f, 0.0f);
 	//-------------------
-	
 
+	vector3 v3Start;
+	vector3 v3End;
+	static uint route = 0;
+	v3Start = m_stopsList[route];
+	v3End = m_stopsList[(route + 1) % m_stopsList.size()];
 
+	float fTimeBtwnStops = 2.0f;
+	float fPercentage = MapValue(fTimer, 0.0f, fTimeBtwnStops, 0.0f, 1.0f);
+
+	v3CurrentPos = glm::lerp(v3Start, v3End, fPercentage);
+	matrix4 m4Model = glm::translate(IDENTITY_M4, v3CurrentPos);
+
+	//if we are done with this route
+	if (fPercentage >= 1.0f)
+	{
+		route++; //go to the next route
+		fTimer = m_pSystem->GetDeltaTime(uClock);//restart the clock
+		route %= m_stopsList.size();//make sure we are within boundries
+	}
 	
-	matrix4 m4Model = glm::translate(v3CurrentPos);
+	//matrix4 m4Model = glm::translate(v3CurrentPos);
 	m_pModel->SetModelMatrix(m4Model);
 
 	m_pMeshMngr->Print("\nTimer: ");//Add a line on top
