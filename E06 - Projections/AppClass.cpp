@@ -56,13 +56,21 @@ void Application::Display(void)
 		m_pCamera->ResetCamera();
 		break;
 	case 2:
-		m_pCamera->ResetCamera();
+		//m_pCamera->ResetCamera();
+		m_pCamera->SetPerspective(false);
 		break;
 	case 3:
-		m_pCamera->ResetCamera();
+		//m_pCamera->ResetCamera();
+		m_pCamera->SetPerspective(true);
 		break;
 	case 4:
 		m_pCamera->ResetCamera();
+		matrix4 m4Projection = m_pCameraMngr->GetProjectionMatrix();
+		vector3 v3LookingAt = m_pCamera->GetPosition();
+		v3LookingAt.z -= 1;
+		matrix4 m4View = glm::lookAt(vector3(0, 0, 30) + m_pCamera->GetPosition(), vector3(0, 0, 0) + v3LookingAt, AXIS_Y);
+		
+		m_pCamera->SetPositionTargetAndUp(vector3(1,0,0), vector3(0,0,0), AXIS_X);
 		break;
 	case 5:
 		m_pCamera->ResetCamera();

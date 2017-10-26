@@ -32,34 +32,21 @@ void Application::Update(void)
 	static uint uClock = m_pSystem->GenClock();
 	float fTimer = m_pSystem->GetTimeSinceStart(uClock);
 	float fDeltaTime = m_pSystem->GetDeltaTime(uClock);
+	quaternion q1;
+	quaternion q2 = glm::angleAxis(359.9f, vector3(0.0f, 0.0f, 1.0f));
+	quaternion q3 = glm::angleAxis(359.9f, vector3(0.0f, 1.0f, 0.0f));
+	quaternion q4 = glm::angleAxis(359.9f, vector3(1.0f, 0.0f, 0.0f));
+	float fPercentage = MapValue(fTimer, 0.0f, 5.0f, 0.0f, 1.0f);
+	quaternion qSLERP = glm::mix(q1, q2, fPercentage);
+	quaternion qSLERP1 = glm::mix(q1, q3, fPercentage);
+	quaternion qSLERP2 = glm::mix(q1, q4, fPercentage);
+	m_m4Steve = glm::toMat4(qSLERP * qSLERP1 * qSLERP1);
 
-#pragma region SLERP
-	if (false)
-	{
-		quaternion q1;
-		quaternion q2 = glm::angleAxis(359.9f, vector3(0.0f, 0.0f, 1.0f));
-		float fPercentage = MapValue(fTimer, 0.0f, 5.0f, 0.0f, 1.0f);
-		quaternion qSLERP = glm::mix(q1, q2, fPercentage);
-		m_m4Steve = glm::toMat4(qSLERP);
-	}
-#pragma endregion
-#pragma region translate vector orientation into a matrix
-	if (false)
-	{
-		matrix4 m4OrientX = glm::rotate(IDENTITY_M4, m_v3Orientation.x, vector3(1.0f, 0.0f, 0.0f));
-		matrix4 m4OrientY = glm::rotate(IDENTITY_M4, m_v3Orientation.y, vector3(0.0f, 1.0f, 0.0f));
-		matrix4 m4OrientZ = glm::rotate(IDENTITY_M4, m_v3Orientation.z, vector3(0.0f, 0.0f, 1.0f));
-
-		matrix4 m4Orientation = m4OrientX * m4OrientY * m4OrientZ;
-		m_m4Steve = glm::toMat4(m_qOrientation);
-	}
-#pragma endregion
-#pragma region orientation using quaternions
-	if (true)
-	{
-		m_m4Steve = glm::toMat4(m_qOrientation);
-	}
-#pragma endregion
+	/*matrix4 m4Orientx = glm::rotate(IDENTITY_M4, m_v3Orientation.x, vector3(1.5f,0.0f, 0.0f));
+	matrix4 m4Orienty = glm::rotate(IDENTITY_M4, m_v3Orientation.y, vector3(0.0f, 1.5f, 0.0f));
+	matrix4 m4Orientz = glm::rotate(IDENTITY_M4, m_v3Orientation.z, vector3(0.0f, 0.0f, 1.5f));
+	matrix4 m4Orientation = m4Orientx * m4Orienty * m4Orientz;
+	m_m4Steve *= glm::toMat4(m_qOrientation);*/
 	
 	//Attach the model matrix that takes me from the world coordinate system
 	m_pModel->SetModelMatrix(m_m4Steve);
