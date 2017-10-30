@@ -47,7 +47,7 @@ void Application::Display(void)
 	
 	//draw a skybox
 	m_pMeshMngr->AddSkyboxToRenderList();
-
+	matrix4 m_m4View;
 	//calculate view and projection
 	switch (m_uProjection)
 	{
@@ -56,30 +56,46 @@ void Application::Display(void)
 		m_pCamera->ResetCamera();
 		break;
 	case 2:
-		//m_pCamera->ResetCamera();
+		m_pCamera->ResetCamera();
 		m_pCamera->SetPerspective(false);
 		break;
 	case 3:
-		//m_pCamera->ResetCamera();
+		m_pCamera->ResetCamera();
 		m_pCamera->SetPerspective(true);
+		m_pCamera->SetPosition(vector3(50.0f, 0.0f, 0.0f)); //Where my camera is located
+		m_pCamera->SetTarget(vector3(0.0f, 0.0f, 0.0f)); //What I'm looking at
+		m_pCamera->SetUp(vector3(0.0f, 0.0f, -1.0f)); //What is up
+		
 		break;
 	case 4:
 		m_pCamera->ResetCamera();
-		matrix4 m4Projection = m_pCameraMngr->GetProjectionMatrix();
-		vector3 v3LookingAt = m_pCamera->GetPosition();
-		v3LookingAt.z -= 1;
-		matrix4 m4View = glm::lookAt(vector3(0, 0, 30) + m_pCamera->GetPosition(), vector3(0, 0, 0) + v3LookingAt, AXIS_Y);
-		
-		m_pCamera->SetPositionTargetAndUp(vector3(1,0,0), vector3(0,0,0), AXIS_X);
+		m_pCamera->SetPerspective(true);
+		m_pCamera->SetPosition(vector3(0.0f, 0.0f, -15.0f)); //Where my camera is located
+		m_pCamera->SetTarget(vector3(0.0f, 0.0f, 0.0f)); //What I'm looking at
+		m_pCamera->SetUp(vector3(0.0f, 1.0f, 0.0f)); //What is up
 		break;
 	case 5:
 		m_pCamera->ResetCamera();
+		m_pCamera->SetPerspective(true);
+		m_pCamera->SetPosition(vector3(0.0f, 0.0f, -15.0f)); //Where my camera is located
+		m_pCamera->SetTarget(vector3(0.0f, 0.0f, 0.0f)); //What I'm looking at
+		m_pCamera->SetUp(vector3(0.0f, 1.0f, 0.0f)); //What is up
+		m_pCamera->SetNearFar(vector2(5.0f, 1000.0f));
 		break;
 	case 6:
 		m_pCamera->ResetCamera();
+		m_pCamera->SetPerspective(true);
+		m_pCamera->SetPosition(vector3(0.0f, 0.0f, -15.0f)); //Where my camera is located
+		m_pCamera->SetTarget(vector3(0.0f, 0.0f, 0.0f)); //What I'm looking at
+		m_pCamera->SetUp(vector3(0.0f, 1.0f, 0.0f)); //What is up
+		m_pCamera->SetNearFar(vector2(0.001f, 14.0f));
 		break;
 	case 7:
 		m_pCamera->ResetCamera();
+		m_pCamera->SetPerspective(true);
+		m_pCamera->SetPosition(vector3(0.0f, 0.0f, 10.0f)); //Where my camera is located
+		m_pCamera->SetTarget(vector3(0.0f, 0.0f, 0.0f)); //What I'm looking at
+		m_pCamera->SetUp(vector3(0.0f, -1.0f, 0.0f)); //What is up
 		break;
 	}
 
