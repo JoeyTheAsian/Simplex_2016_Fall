@@ -26,12 +26,14 @@ private:
 	uint m_uControllerCount = 0; //count of controllers connected
 
 	vector3 m_v3Mouse = vector3(); //position of the mouse in the window
+
 	bool m_bFPC = false;// First Person Camera flag
 	bool m_bArcBall = false;// Arcball flag
 	quaternion m_qArcBall; //ArcBall quaternion
 
 	vector4 m_v4ClearColor; //Color of the scene
 	bool m_bRunning = false; //Is app running?
+
 
 	sf::Window* m_pWindow = nullptr; //SFML window
 	Simplex::SystemSingleton* m_pSystem = nullptr; //Singleton of the system
@@ -40,8 +42,15 @@ private:
 	Simplex::CameraManager* m_pCameraMngr = nullptr; //Singleton for the camera manager
 	ControllerInput* m_pController[8]; //Controller
 	uint m_uActCont = 0; //Active Controller of the Application
-
+	float oldTime;
+	float deltaTime;
 public:
+	vector3 camDirection;
+	vector3 camPosition;
+	vector3 camRotation;
+	void MoveForward(float speed);
+	void MoveSideways(float speed);
+	void RotateCamera(vector2 mouseDelta);
 #pragma region Constructor / Run / Destructor
 	/*
 	USAGE: Constructor

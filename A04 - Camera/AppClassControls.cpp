@@ -8,6 +8,11 @@ void Application::ProcessMouseMovement(sf::Event a_event)
 	sf::Vector2i window = m_pWindow->getPosition();
 	m_v3Mouse.x = static_cast<float>(mouse.x - window.x);
 	m_v3Mouse.y = static_cast<float>(mouse.y - window.y);
+	if (gui.m_bMousePressed[2]) {
+		vector2 delta = vector2(m_v3Mouse.x - 640, m_v3Mouse.y - 360);
+		//std::cout << m_v3Mouse.x << ',' << m_v3Mouse.y << std::endl;
+		RotateCamera(delta);
+	}
 	if(!m_pSystem->IsWindowFullscreen() && !m_pSystem->IsWindowBorderless())
 		m_v3Mouse += vector3(-8.0f, -32.0f, 0.0f);
 	gui.io.MousePos = ImVec2(m_v3Mouse.x, m_v3Mouse.y);
@@ -379,12 +384,30 @@ void Application::ProcessKeyboard(void)
 	for discreet on/off use ProcessKeyboardPressed/Released
 	*/
 #pragma region Camera Position
-	float fSpeed = 0.1f;
+	float fSpeed = 1.0f;
 	float fMultiplier = sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) ||
 		sf::Keyboard::isKeyPressed(sf::Keyboard::RShift);
-
 	if (fMultiplier)
 		fSpeed *= 5.0f;
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
+		MoveForward(fSpeed);
+	}
+		
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+		MoveForward(-fSpeed);
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+		MoveSideways(-fSpeed);
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+		MoveSideways(fSpeed);
+
+	/*if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
+		MoveVertical(-fSpeed);
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::E))
+		MoveVertical(fSpeed);*/
+
 #pragma endregion
 }
 //Joystick
