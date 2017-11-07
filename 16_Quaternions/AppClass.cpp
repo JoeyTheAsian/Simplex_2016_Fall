@@ -49,7 +49,7 @@ void Application::Update(void)
 	m_m4Steve *= glm::toMat4(m_qOrientation);*/
 	
 	//Attach the model matrix that takes me from the world coordinate system
-	m_pModel->SetModelMatrix(m_m4Steve);
+	m_pModel->SetModelMatrix(m_m4Steve, m_pModel->GetVertexList());
 
 	//Send the model to render list
 	m_pModel->AddToRenderList();

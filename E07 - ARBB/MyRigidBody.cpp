@@ -76,6 +76,7 @@ vector3 MyRigidBody::GetMinGlobal(void) { return m_v3MinG; }
 vector3 MyRigidBody::GetMaxGlobal(void) { return m_v3MaxG; }
 vector3 MyRigidBody::GetHalfWidth(void) { return m_v3HalfWidth; }
 matrix4 MyRigidBody::GetModelMatrix(void) { return m_m4ToWorld; }
+float size = 1.0f;
 void MyRigidBody::SetModelMatrix(matrix4 a_m4ModelMatrix)
 {
 	//to save some calculations if the model matrix is the same there is nothing to do here
@@ -85,9 +86,44 @@ void MyRigidBody::SetModelMatrix(matrix4 a_m4ModelMatrix)
 	m_m4ToWorld = a_m4ModelMatrix;
 	
 	//your code goes here---------------------
-	m_v3MinG = m_v3MinL;
-	m_v3MaxG = m_v3MaxL;
-	//----------------------------------------
+	//Max and min as the first vector of the list
+	vector3 v3Corner[8];
+	v3Corner[0] = m_v3MinL;
+	v3Corner[1] = vector3(m_v3MaxL.x, m_v3MinL.y, m_v3MinL.z);
+	v3Corner[2] = vector3(m_v3MinL.x, m_v3MaxL.y, m_v3MinL.z);
+	v3Corner[3] = vector3(m_v3MaxL.x, m_v3MaxL.y, m_v3MinL.z);
+	
+	v3Corner[4] = vector3(m_v3MinL.x, m_v3MinL.y, m_v3MaxL.z);
+	v3Corner[5] = vector3(m_v3MaxL.x, m_v3MinL.y, m_v3MaxL.z);
+	v3Corner[6] = vector3(m_v3MinL.x, m_v3MaxL.y, m_v3MaxL.z);
+	v3Corner[7] = m_v3MaxL;
+
+	for (uint uIndex = 0; uIndex < 8; uIndex++) {
+		v3Corner[uIndex] = vector3(m_m4ToWorld * vector4(v3Corner[uIndex], 1.0f));
+	}
+
+	m_v3MaxG = m_v3MinG = v3Corner[0];
+
+	for (uint i = 1; i < 8; i++) {
+		if (m_v3MaxG.x < v3Corner[i].x) {
+			m_v3MaxG.x = v3Corner[i].x;
+		}
+		else if (m_v3MinG.x > v3Corner[i].x) {
+			m_v3MinG.x = v3Corner[i].x;
+		}
+		if (m_v3MaxG.y < v3Corner[i].y) {
+			m_v3MaxG.y = v3Corner[i].y;
+		}
+		else if (m_v3MinG.y > v3Corner[i].y) {
+			m_v3MinG.y = v3Corner[i].y;
+		}
+		if (m_v3MaxG.z < v3Corner[i].z) {
+			m_v3MaxG.z = v3Corner[i].z;
+		}
+		else if (m_v3MinG.z > v3Corner[i].z) {
+			m_v3MinG.z = v3Corner[i].z;
+		}
+	}
 
 	//we calculate the distance between min and max vectors
 	m_v3ARBBSize = m_v3MaxG - m_v3MinG;

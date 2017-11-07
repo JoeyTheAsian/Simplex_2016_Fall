@@ -219,12 +219,12 @@ public:
 	Output: model to world matrix
 	*/
 	matrix4 GetModelMatrix(void);
+	void SetModelMatrix(matrix4 a_m4ModelMatrix);
 	/*
 	Usage: Sets Model to World matrix
 	Arguments: Model to World matrix
 	Output: ---
 	*/
-	void SetModelMatrix(matrix4 a_m4ModelMatrix);
 #pragma endregion
 	
 private:
