@@ -84,7 +84,7 @@ void MyRigidBody::SetModelMatrix(matrix4 a_m4ModelMatrix)
 
 	//Assign the model matrix
 	m_m4ToWorld = a_m4ModelMatrix;
-
+	rotationMatrix = glm::extractMatrixRotation(a_m4ModelMatrix);
 	//Calculate the 8 corners of the cube
 	vector3 v3Corner[8];
 	//Back square
@@ -275,7 +275,7 @@ void MyRigidBody::AddToRenderList(void)
 }
 
 uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
-{
+{	//Calculate the 8 corners of the cubes
 	/*
 	Your code goes here instead of this comment;
 
@@ -286,7 +286,142 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 	Simplex that might help you [eSATResults] feel free to use it.
 	(eSATResults::SAT_NONE has a value of 0)
 	*/
+	
+	struct OBB {
+		vector3 c;      // OBB center point
+		vector3 u[3];  // Local x-, y-, and z-axes
+		vector3 e;     // Positive halfwidth extents of OBB along each axis
+	};
+	
+	OBB a;
+	a.c = GetCenterGlobal();
+	vector4 temp = vector4(1.0f, 0.0f, 0.0f, 1.0f) * rotationMatrix;
+	a.u[0] = glm::normalize(vector3(temp.x, temp.y, temp.z));
+	temp = vector4(0.0f, 1.0f, 0.0f, 1.0f) * rotationMatrix;
+	a.u[1] = glm::normalize(vector3(temp.x, temp.y, temp.z));
+	temp = vector4(0.0f, 0.0f, 1.0f, 1.0f) * rotationMatrix;
+	a.u[2] = glm::normalize(vector3(temp.x, temp.y, temp.z));
+	a.e = GetHalfWidth();
 
+	OBB b;
+	b.c = a_pOther->GetCenterGlobal();
+	temp = vector4(1.0f, 0.0f, 0.0f, 1.0f) * a_pOther->rotationMatrix;
+	b.u[0] = glm::normalize(vector3(temp.x, temp.y, temp.z));
+	temp = vector4(0.0f, 1.0f, 0.0f, 1.0f)  * a_pOther->rotationMatrix;
+	b.u[1] = glm::normalize(vector3(temp.x, temp.y, temp.z));
+	temp = vector4(0.0f, 0.0f, 1.0f, 1.0f)  * a_pOther->rotationMatrix;
+	b.u[2] = glm::normalize(vector3(temp.x, temp.y, temp.z));
+	b.e = a_pOther->GetHalfWidth();
+
+	float ra, rb;
+	matrix3 R, AbsR;
+
+	// Compute rotation matrix expressing b in a's coordinate frame
+	for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 3; j++) {
+			R[i][j] = glm::dot(a.u[i], b.u[j]);
+		}
+	}
+
+	// Compute translation vector t
+	vector3 t = b.c - a.c;
+	// Bring translation into a's coordinate frame
+	t = vector3(glm::dot(t, a.u[0]), glm::dot(t, a.u[1]), glm::dot(t, a.u[2]));
+	
+	// Compute common subexpressions. Add in an epsilon term to
+	// counteract arithmetic errors when two edges are parallel and
+	// their cross product is (near) null (see text for details)
+	for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 3; j++) {
+			AbsR[i][j] = abs(R[i][j]) + .0000001f;
+		}
+	}
+
+    // Test axes L = A0, L = A1, L = A2
+    for (int i = 0; i < 3; i++) {
+        ra = a.e[i];
+        rb = b.e[0] * AbsR[i][0] + b.e[1] * AbsR[i][1] + b.e[2] * AbsR[i][2];
+		if (abs(t[i]) > ra + rb) {
+			std::cout << i << std::endl;
+			return 1;
+		}
+    }
+
+    // Test axes L = B0, L = B1, L = B2
+	for (int i = 0; i < 3; i++) {
+		ra = a.e[0] * AbsR[0][i] + a.e[1] * AbsR[1][i] + a.e[2] * AbsR[2][i];
+		rb = b.e[i];
+		if (abs(t[0] * R[0][i] + t[1] * R[1][i] + t[2] * R[2][i]) > ra + rb) {
+			std::cout << i + 3 << std::endl;
+			return 1;
+		}
+	}
+
+	// Test axis L = A0 x B0
+	ra = a.e[1] * AbsR[2][0] + a.e[2] * AbsR[1][0];
+	rb = b.e[1] * AbsR[0][2] + b.e[2] * AbsR[0][1];
+	if (abs(t[2] * R[1][0] - t[1] * R[2][0]) > ra + rb) {
+		std::cout << 6 << std::endl;
+		return eSATResults::SAT_AXxBX;
+	}
+	// Test axis L = A0 x B1
+	ra = a.e[1] * AbsR[2][1] + a.e[2] * AbsR[1][1];
+	rb = b.e[0] * AbsR[0][2] + b.e[2] * AbsR[0][0];
+	if (abs(t[2] * R[1][1] - t[1] * R[2][1]) > ra + rb) {
+		std::cout << 7 << std::endl;
+		return eSATResults::SAT_AXxBY;
+	}
+	// Test axis L = A0 x B2
+	ra = a.e[1] * AbsR[2][2] + a.e[2] * AbsR[1][2];
+	rb = b.e[0] * AbsR[0][1] + b.e[1] * AbsR[0][0];
+	if (abs(t[2] * R[1][2] - t[1] * R[2][2]) > ra + rb) {
+		std::cout << 8 << std::endl;
+		return eSATResults::SAT_AXxBZ;
+	}
+	// Test axis L = A1 x B0
+	ra = a.e[0] * AbsR[2][0] + a.e[2] * AbsR[0][0];
+	rb = b.e[1] * AbsR[1][2] + b.e[2] * AbsR[1][1];
+
+	if (abs(t[0] * R[2][0] - t[2] * R[0][0]) > ra + rb) {
+		std::cout << 9 << std::endl;
+		return eSATResults::SAT_AYxBX;
+	}
+	// Test axis L = A1 x B1
+	ra = a.e[0] * AbsR[2][1] + a.e[2] * AbsR[0][1];
+	rb = b.e[0] * AbsR[1][2] + b.e[2] * AbsR[1][0];
+	if (abs(t[0] * R[2][1] - t[2] * R[0][1]) > ra + rb) {
+		std::cout << 10 << std::endl;
+		return eSATResults::SAT_AYxBY;
+	}
+	// Test axis L = A1 x B2
+	ra = a.e[0] * AbsR[2][2] + a.e[2] * AbsR[0][2];
+	rb = b.e[0] * AbsR[1][1] + b.e[1] * AbsR[1][0];
+	if (abs(t[0] * R[2][2] - t[2] * R[0][2]) > ra + rb) {
+		std::cout << 11 << std::endl;
+		return eSATResults::SAT_AYxBZ;
+	}
+	// Test axis L = A2 x B0
+	ra = a.e[0] * AbsR[1][0] + a.e[1] * AbsR[0][0];
+	rb = b.e[1] * AbsR[2][2] + b.e[2] * AbsR[2][1];
+	if (abs(t[1] * R[0][0] - t[0] * R[1][0]) > ra + rb) {
+		std::cout << 12 << std::endl;
+		return eSATResults::SAT_AYxBX;
+	}
+	// Test axis L = A2 x B1
+	ra = a.e[0] * AbsR[1][1] + a.e[1] * AbsR[0][1];
+	rb = b.e[0] * AbsR[2][2] + b.e[2] * AbsR[2][0];
+	if (abs(t[1] * R[0][1] - t[0] * R[1][1]) > ra + rb) {
+		std::cout << 13 << std::endl;
+		return eSATResults::SAT_AZxBY;
+	}
+	// Test axis L = A2 x B2
+	ra = a.e[0] * AbsR[1][2] + a.e[1] * AbsR[0][2];
+	rb = b.e[0] * AbsR[2][1] + b.e[1] * AbsR[2][0];
+	if (abs(t[1] * R[0][2] - t[0] * R[1][2]) > ra + rb) {
+		std::cout << 14 << std::endl;
+		return eSATResults::SAT_AZxBZ;
+	}
+	//std::cout << "NONE";
 	//there is no axis test that separates this two objects
 	return eSATResults::SAT_NONE;
 }
