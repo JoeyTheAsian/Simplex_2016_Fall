@@ -295,22 +295,22 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 	
 	OBB a;
 	a.c = GetCenterGlobal();
-	vector4 temp = vector4(1.0f, 0.0f, 0.0f, 1.0f) * rotationMatrix;
-	a.u[0] = glm::normalize(vector3(temp.x, temp.y, temp.z));
-	temp = vector4(0.0f, 1.0f, 0.0f, 1.0f) * rotationMatrix;
-	a.u[1] = glm::normalize(vector3(temp.x, temp.y, temp.z));
-	temp = vector4(0.0f, 0.0f, 1.0f, 1.0f) * rotationMatrix;
-	a.u[2] = glm::normalize(vector3(temp.x, temp.y, temp.z));
+	//vector4 temp = vector4(1.0f, 0.0f, 0.0f, 0.0f) * rotationMatrix;
+	a.u[0] = vector3(m_m4ToWorld * vector4(1.0f, 0.0f, 0.0f, 0.0f));
+	//temp = vector4(0.0f, 1.0f, 0.0f, 0.0f) * rotationMatrix;
+	a.u[1] = vector3(m_m4ToWorld * vector4(0.0f, 1.0f, 0.0f, 0.0f));
+	//temp = vector4(0.0f, 0.0f, 1.0f, 0.0f) * rotationMatrix;
+	a.u[2] = vector3(m_m4ToWorld * vector4(0.0f, 0.0f, 1.0f, 0.0f));
 	a.e = GetHalfWidth();
 
 	OBB b;
 	b.c = a_pOther->GetCenterGlobal();
-	temp = vector4(1.0f, 0.0f, 0.0f, 1.0f) * a_pOther->rotationMatrix;
-	b.u[0] = glm::normalize(vector3(temp.x, temp.y, temp.z));
-	temp = vector4(0.0f, 1.0f, 0.0f, 1.0f)  * a_pOther->rotationMatrix;
-	b.u[1] = glm::normalize(vector3(temp.x, temp.y, temp.z));
-	temp = vector4(0.0f, 0.0f, 1.0f, 1.0f)  * a_pOther->rotationMatrix;
-	b.u[2] = glm::normalize(vector3(temp.x, temp.y, temp.z));
+	//temp = vector4(1.0f, 0.0f, 0.0f, 0.0f) * a_pOther->rotationMatrix;
+	b.u[0] = vector3(a_pOther->m_m4ToWorld * vector4(1.0f, 0.0f, 0.0f, 0.0f));
+	//temp = vector4(0.0f, 1.0f, 0.0f, 0.0f)  * a_pOther->rotationMatrix;
+	b.u[1] = vector3(a_pOther->m_m4ToWorld * vector4(0.0f, 1.0f, 0.0f, 0.0f));
+	//temp = vector4(0.0f, 0.0f, 1.0f, 0.0f)  * a_pOther->rotationMatrix;
+	b.u[2] = vector3(a_pOther->m_m4ToWorld * vector4(0.0f, 0.0f, 1.0f, 0.0f));
 	b.e = a_pOther->GetHalfWidth();
 
 	float ra, rb;

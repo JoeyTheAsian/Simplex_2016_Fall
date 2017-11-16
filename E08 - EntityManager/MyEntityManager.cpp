@@ -21,7 +21,7 @@ void MyEntityManager::ReleaseInstance()
 }
 int Simplex::MyEntityManager::GetEntityIndex(String a_sUniqueID)
 {
-	for (int i = 0; i < m_entityList.size(); i++) {
+	for (uint i = 0; i < m_entityList.size(); i++) {
 		if (m_entityList[i]->GetUniqueID() == a_sUniqueID) {
 			return i;
 		}
@@ -35,7 +35,7 @@ Model* Simplex::MyEntityManager::GetModel(uint a_uIndex)
 }
 Model* Simplex::MyEntityManager::GetModel(String a_sUniqueID)
 {
-	for (int i = 0; i < m_entityList.size(); i++) {
+	for (uint i = 0; i < m_entityList.size(); i++) {
 		if (m_entityList[i]->GetUniqueID() == a_sUniqueID) {
 			return m_entityList[i]->GetModel();
 		}
@@ -44,11 +44,12 @@ Model* Simplex::MyEntityManager::GetModel(String a_sUniqueID)
 }
 RigidBody* Simplex::MyEntityManager::GetRigidBody(uint a_uIndex)
 {
-	return m_entityList[a_uIndex]->GetRigidBody();
+	if (a_uIndex < m_entityList.size())
+		return m_entityList[a_uIndex]->GetRigidBody();
 }
 RigidBody* Simplex::MyEntityManager::GetRigidBody(String a_sUniqueID)
 {
-	for (int i = 0; i < m_entityList.size(); i++) {
+	for (uint i = 0; i < m_entityList.size(); i++) {
 		if (m_entityList[i]->GetUniqueID() == a_sUniqueID) {
 			return m_entityList[i]->GetRigidBody();
 		}
@@ -57,11 +58,12 @@ RigidBody* Simplex::MyEntityManager::GetRigidBody(String a_sUniqueID)
 }
 matrix4 Simplex::MyEntityManager::GetModelMatrix(uint a_uIndex)
 {
-	return m_entityList[a_uIndex]->GetModelMatrix();
+	if (a_uIndex < m_entityList.size())
+		return m_entityList[a_uIndex]->GetModelMatrix();
 }
 matrix4 Simplex::MyEntityManager::GetModelMatrix(String a_sUniqueID)
 {
-	for (int i = 0; i < m_entityList.size(); i++) {
+	for (uint i = 0; i < m_entityList.size(); i++) {
 		if (m_entityList[i]->GetUniqueID() == a_sUniqueID) {
 			return m_entityList[i]->GetModelMatrix();
 		}
@@ -70,7 +72,7 @@ matrix4 Simplex::MyEntityManager::GetModelMatrix(String a_sUniqueID)
 }
 void Simplex::MyEntityManager::SetModelMatrix(matrix4 a_m4ToWorld, String a_sUniqueID)
 {
-	for (int i = 0; i < m_entityList.size(); i++) {
+	for (uint i = 0; i < m_entityList.size(); i++) {
 		if (m_entityList[i]->GetUniqueID() == a_sUniqueID) {
 			return m_entityList[i]->SetModelMatrix(a_m4ToWorld);
 		}
@@ -78,7 +80,8 @@ void Simplex::MyEntityManager::SetModelMatrix(matrix4 a_m4ToWorld, String a_sUni
 }
 void Simplex::MyEntityManager::SetModelMatrix(matrix4 a_m4ToWorld, uint a_uIndex)
 {
-	m_entityList[a_uIndex]->SetModelMatrix(a_m4ToWorld);
+	if(a_uIndex < m_entityList.size())
+		m_entityList[a_uIndex]->SetModelMatrix(a_m4ToWorld);
 }
 //The big 3
 MyEntityManager::MyEntityManager(){Init();}
@@ -92,15 +95,21 @@ void Simplex::MyEntityManager::Update(void)
 }
 void Simplex::MyEntityManager::AddEntity(String a_sFileName, String a_sUniqueID)
 {
-	//m_entityList.push_back(MyEntity(a_sFileName, a_sUniqueID));
+	m_entityList.push_back(new MyEntity(a_sFileName, a_sUniqueID));
 }
 void Simplex::MyEntityManager::RemoveEntity(uint a_uIndex)
 {
-
+	m_entityList.erase(m_entityList.begin() + a_uIndex);
+	return;
 }
 void Simplex::MyEntityManager::RemoveEntity(String a_sUniqueID)
 {
-	
+	for (uint i = 0; i < m_entityList.size(); i++) {
+		if (m_entityList[i]->GetUniqueID() == a_sUniqueID) {
+			m_entityList.erase(m_entityList.begin() + i);
+			return;
+		}
+	}
 }
 String Simplex::MyEntityManager::GetUniqueID(uint a_uIndex)
 {
@@ -112,7 +121,7 @@ MyEntity* Simplex::MyEntityManager::GetEntity(uint a_uIndex)
 }
 void Simplex::MyEntityManager::AddEntityToRenderList(uint a_uIndex, bool a_bRigidBody)
 {
-
+	
 }
 void Simplex::MyEntityManager::AddEntityToRenderList(String a_sUniqueID, bool a_bRigidBody)
 {
