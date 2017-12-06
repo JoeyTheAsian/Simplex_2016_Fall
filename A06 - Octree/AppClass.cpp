@@ -29,7 +29,10 @@ void Application::InitVariables(void)
 			m_pEntityMngr->SetModelMatrix(m4Position);
 		}
 	}
-	m_uOctantLevels = 1;
+	m_uOctantLevels = 2;
+
+	root = new MyOctant(m_uOctantLevels);
+
 	m_pEntityMngr->Update();
 }
 void Application::Update(void)
@@ -54,9 +57,9 @@ void Application::Display(void)
 	// Clear the screen
 	ClearScreen();
 
-	//display octree
-	//m_pRoot->Display();
-	
+	//display octtree
+	root->Display();
+
 	// draw a skybox
 	m_pMeshMngr->AddSkyboxToRenderList();
 	
@@ -69,6 +72,8 @@ void Application::Display(void)
 	//draw gui,
 	DrawGUI();
 	
+
+
 	//end the current frame (internally swaps the front and back buffers)
 	m_pWindow->display();
 }
